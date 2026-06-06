@@ -6,6 +6,7 @@ backend/**/__pycache__/
 
 # Build output
 frontend/dist/
+frontend/.vite/
 
 # Environment
 .env

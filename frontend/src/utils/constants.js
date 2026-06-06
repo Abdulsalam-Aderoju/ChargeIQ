@@ -27,8 +27,13 @@ export const POWER_LEVELS = {
   STANDARD: 22,
 };
 
-/** MapLibre dark basemap (free, no API key) */
+/**
+ * Map style URL. Set VITE_MAP_STYLE_URL in .env to swap in an Amazon Location
+ * Service style (e.g. https://maps.geo.<region>.amazonaws.com/maps/v0/maps/<name>/style-descriptor)
+ * once Abdulsalam provides the ALS map name + API key.
+ */
 export const MAP_STYLE =
+  import.meta.env.VITE_MAP_STYLE_URL ||
   'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
 /** Default map center — Lagos [lng, lat] for MapLibre */

@@ -16,7 +16,7 @@ from botocore.exceptions import ClientError
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+AWS_REGION = os.environ.get("AWS_REGION", "eu-north-1")
 
 STATIONS_TABLE = os.environ.get("DYNAMODB_STATIONS_TABLE", "chargeiq-stations")
 AVAILABILITY_LOG_TABLE = os.environ.get("DYNAMODB_AVAILABILITY_TABLE", "chargeiq-availability")

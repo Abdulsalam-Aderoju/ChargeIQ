@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+AWS_REGION = os.environ.get("AWS_REGION", "eu-north-1")
 SAGEMAKER_ENDPOINT = os.environ.get("SAGEMAKER_ENDPOINT", "chargeiq-waittime-endpoint")
 
 _sagemaker_client = None

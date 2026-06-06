@@ -17,7 +17,10 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-AWS_REGION = os.environ.get("AWS_REGION", "eu-west-1")
+AWS_REGION = os.environ.get("AWS_REGION", "eu-north-1")
+# Bedrock is NOT available in eu-north-1 — use the nearest supported region.
+# Override with BEDROCK_REGION env var if Abdulsalam enables Bedrock elsewhere.
+BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "eu-west-1")
 BEDROCK_MODEL_ID = os.environ.get(
     "BEDROCK_MODEL_ID",
     "anthropic.claude-3-haiku-20240307-v1:0",
@@ -30,7 +33,7 @@ def _get_bedrock_client():
     """Lazy-init Bedrock Runtime client."""
     global _bedrock_client
     if _bedrock_client is None:
-        _bedrock_client = boto3.client("bedrock-runtime", region_name=AWS_REGION)
+        _bedrock_client = boto3.client("bedrock-runtime", region_name=BEDROCK_REGION)
     return _bedrock_client
 
 

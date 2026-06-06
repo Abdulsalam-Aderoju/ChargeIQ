@@ -14,6 +14,12 @@
   overflow: hidden;
 }
 
+.map-area {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
 /* AWS Footer */
 .app-footer {
   position: fixed;

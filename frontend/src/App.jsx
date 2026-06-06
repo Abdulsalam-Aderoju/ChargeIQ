@@ -76,21 +76,23 @@ function App() {
 
       {view === 'map' ? (
         <div className="map-view">
-          <NLSearch
-            onResult={handleNLResult}
-            stations={stations}
-          />
           <FilterBar
             filters={filters}
             onFilterChange={setFilters}
           />
-          <StationMap
-            stations={displayStations}
-            selectedStation={selectedStation}
-            onStationSelect={handleStationSelect}
-            showHeatmap={showHeatmap}
-            onHeatmapToggle={() => setShowHeatmap(prev => !prev)}
-          />
+          <div className="map-area">
+            <StationMap
+              stations={displayStations}
+              selectedStation={selectedStation}
+              onStationSelect={handleStationSelect}
+              showHeatmap={showHeatmap}
+              onHeatmapToggle={() => setShowHeatmap(prev => !prev)}
+            />
+            <NLSearch
+              onResult={handleNLResult}
+              stations={stations}
+            />
+          </div>
           {selectedStation && (
             <StationPanel
               station={selectedStation}

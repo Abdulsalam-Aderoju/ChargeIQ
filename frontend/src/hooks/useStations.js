@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getStations, updateStationStatus, createStation } from '../services/api';
 import { subscribeToUpdates } from '../services/realtime';
+import { normalizeStations, normalizeStation } from '../utils/stationAdapter';
 import { haversine } from '../utils/geo';
 
 export function useStations() {
@@ -23,7 +24,7 @@ export function useStations() {
     try {
       setLoading(true);
       const data = await getStations();
-      setStations(data);
+      setStations(normalizeStations(data));
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -68,8 +69,27 @@ export function useStations() {
 
   const updateStation = useCallback(async (id, status, connectorId = null) => {
     try {
-      const updated = await updateStationStatus(id, status, connectorId);
-      setStations(prev => prev.map(s => s.stationId === id ? { ...s, ...updated } : s));
+      await updateStationStatus(id, status, connectorId);
+      // Real API returns { message: "ok" } not a station — update state optimistically
+      setStations(prev => prev.map(s => {
+        if (s.stationId !== id) return s;
+        const updatedConnectors = s.connectors.map(c =>
+          !connectorId || (c.id || c.connectorId) === connectorId ? { ...c, status } : c
+        );
+        const allStatuses = updatedConnectors.map(c => c.status);
+        const newStatus =
+          allStatuses.every(x => x === 'OFFLINE') ? 'OFFLINE' :
+          allStatuses.every(x => x === 'MAINTENANCE') ? 'MAINTENANCE' :
+          allStatuses.some(x => x === 'AVAILABLE') ? 'AVAILABLE' : 'IN_USE';
+        return {
+          ...s,
+          connectors: updatedConnectors,
+          status: newStatus,
+          availablePorts: updatedConnectors.filter(c => c.status === 'AVAILABLE').length,
+          waitMinutes: newStatus === 'AVAILABLE' ? 0 : s.waitMinutes,
+          lastUpdated: new Date().toISOString(),
+        };
+      }));
     } catch (err) {
       setError(err.message);
     }
@@ -77,13 +97,13 @@ export function useStations() {
 
   const addStation = useCallback(async (data) => {
     try {
-      const created = await createStation(data);
-      setStations(prev => [...prev, created]);
-      return created;
+      await createStation(data);
+      // Real API returns { message, stationId } not a full station — refetch to get it
+      await loadStations();
     } catch (err) {
       setError(err.message);
     }
-  }, []);
+  }, [loadStations]);
 
   return {
     stations, filteredStations, filters, setFilters,

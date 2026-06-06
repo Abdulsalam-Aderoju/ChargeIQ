@@ -36,6 +36,8 @@ export const MAP_STYLE =
   import.meta.env.VITE_MAP_STYLE_URL ||
   'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
+export const ALS_API_KEY = import.meta.env.VITE_ALS_API_KEY || '';
+
 /** Default map center — Lagos [lng, lat] for MapLibre */
 export const DEFAULT_CENTER = [3.3792, 6.5244];
 

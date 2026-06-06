@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import StatusBadge from '../common/StatusBadge';
 import ConnectorIcon from '../common/ConnectorIcon';
 import './StationPanel.css';
@@ -25,14 +25,30 @@ function Stars({ rating }) {
   );
 }
 
-export default function StationPanel({ station, nlMessage, onClose }) {
+export default function StationPanel({ station, nlMessage, onClose, onGetDirections }) {
+  const [dirState, setDirState] = useState('idle'); // 'idle' | 'loading' | 'error'
+
   if (!station) return null;
 
   const portPercent = station.totalPorts > 0
     ? (station.availablePorts / station.totalPorts) * 100
     : 0;
 
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`;
+  const handleDirections = async () => {
+    setDirState('loading');
+    try {
+      await onGetDirections(station);
+      setDirState('idle');
+    } catch (err) {
+      console.warn('ALS route failed, falling back to Google Maps:', err.message);
+      setDirState('error');
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`,
+        '_blank'
+      );
+      setTimeout(() => setDirState('idle'), 2000);
+    }
+  };
 
   return (
     <>
@@ -122,9 +138,13 @@ export default function StationPanel({ station, nlMessage, onClose }) {
         </div>
 
         <div className="panel-actions">
-          <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="btn-primary">
-            📍 Get Directions
-          </a>
+          <button
+            className="btn-primary"
+            onClick={handleDirections}
+            disabled={dirState === 'loading'}
+          >
+            {dirState === 'loading' ? '⏳ Calculating…' : '📍 Get Directions'}
+          </button>
           <button className="btn-secondary" onClick={() => alert('You will be notified via Amazon SNS when this station is free!')}>
             🔔 Notify Me
           </button>

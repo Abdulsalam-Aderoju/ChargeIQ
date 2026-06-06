@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useStations } from './hooks/useStations';
 import { useAuth } from './hooks/useAuth';
+import { calculateRoute, getUserLocation } from './services/routing';
 import './App.css';
 import Header from './components/Layout/Header';
 import StationMap from './components/Map/StationMap';
@@ -17,6 +18,7 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [nlMessage, setNlMessage] = useState(null);
   const [selectedCity, setSelectedCity] = useState('all');
+  const [activeRoute, setActiveRoute] = useState(null);
 
   const { user, role, isAuthenticated, login, signup, logout } = useAuth();
   const {
@@ -48,6 +50,12 @@ function App() {
   const handleClosePanel = useCallback(() => {
     setSelectedStation(null);
     setNlMessage(null);
+  }, []);
+
+  const handleGetDirections = useCallback(async (station) => {
+    const origin = await getUserLocation();
+    const route = await calculateRoute(origin.lat, origin.lng, station.lat, station.lng);
+    setActiveRoute(route);
   }, []);
 
   const handleLogin = useCallback(async (email, password, selectedRole) => {
@@ -87,6 +95,8 @@ function App() {
               onStationSelect={handleStationSelect}
               showHeatmap={showHeatmap}
               onHeatmapToggle={() => setShowHeatmap(prev => !prev)}
+              route={activeRoute}
+              onClearRoute={() => setActiveRoute(null)}
             />
             <NLSearch
               onResult={handleNLResult}
@@ -98,6 +108,7 @@ function App() {
               station={selectedStation}
               nlMessage={nlMessage}
               onClose={handleClosePanel}
+              onGetDirections={handleGetDirections}
             />
           )}
         </div>

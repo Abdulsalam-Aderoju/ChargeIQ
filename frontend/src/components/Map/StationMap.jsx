@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { MAP_STYLE, DEFAULT_CENTER, DEFAULT_ZOOM, STATUS_COLORS } from '../../utils/constants';
+import { MAP_STYLE, ALS_API_KEY, DEFAULT_CENTER, DEFAULT_ZOOM, STATUS_COLORS } from '../../utils/constants';
+import { formatDistance, formatDuration } from '../../services/routing';
 import HeatmapLayer from './HeatmapLayer';
 import './StationMap.css';
 
-export default function StationMap({ stations, selectedStation, onStationSelect, showHeatmap, onHeatmapToggle }) {
+export default function StationMap({ stations, selectedStation, onStationSelect, showHeatmap, onHeatmapToggle, route, onClearRoute }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -22,6 +23,14 @@ export default function StationMap({ stations, selectedStation, onStationSelect,
       pitch: 0,
       maxZoom: 18,
       minZoom: 4,
+      transformRequest: ALS_API_KEY
+        ? (url) => {
+            if (url.startsWith('https://maps.geo.') && !url.includes('key=')) {
+              return { url: `${url}${url.includes('?') ? '&' : '?'}key=${ALS_API_KEY}` };
+            }
+            return { url };
+          }
+        : undefined,
     });
 
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
@@ -102,7 +111,7 @@ export default function StationMap({ stations, selectedStation, onStationSelect,
       layout: {
         'text-field': '{point_count_abbreviated}',
         'text-size': 13,
-        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-font': ['Amazon Ember Bold', 'Amazon Ember Regular'],
       },
       paint: { 'text-color': '#0a0e17' },
     });
@@ -189,6 +198,57 @@ export default function StationMap({ stations, selectedStation, onStationSelect,
 
   }, [stations, mapLoaded, onStationSelect]);
 
+  // Draw / clear route layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+
+    const clearRoute = () => {
+      if (map.getLayer('route-line')) map.removeLayer('route-line');
+      if (map.getLayer('route-border')) map.removeLayer('route-border');
+      if (map.getSource('route')) map.removeSource('route');
+    };
+
+    if (!route || !route.coordinates.length) {
+      clearRoute();
+      return;
+    }
+
+    const geojson = {
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: route.coordinates },
+    };
+
+    if (map.getSource('route')) {
+      map.getSource('route').setData(geojson);
+    } else {
+      map.addSource('route', { type: 'geojson', data: geojson });
+
+      map.addLayer({
+        id: 'route-border',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#0369a1', 'line-width': 9, 'line-opacity': 0.4 },
+      }, 'station-glow');
+
+      map.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#38bdf8', 'line-width': 4, 'line-opacity': 0.95 },
+      }, 'station-glow');
+    }
+
+    // Fit both ends in view
+    const bounds = route.coordinates.reduce(
+      (b, c) => b.extend(c),
+      new maplibregl.LngLatBounds(route.coordinates[0], route.coordinates[0])
+    );
+    map.fitBounds(bounds, { padding: 100, maxZoom: 14, duration: 1200 });
+  }, [route, mapLoaded]);
+
   // Fly to selected station
   useEffect(() => {
     const map = mapRef.current;
@@ -214,6 +274,20 @@ export default function StationMap({ stations, selectedStation, onStationSelect,
       >
         🔥 {showHeatmap ? 'Hide' : 'Show'} Heatmap
       </button>
+
+      {route && (
+        <div className="route-info-bar">
+          <span className="route-info-icon">📍</span>
+          <span className="route-info-text">
+            <strong>{formatDistance(route.distanceMeters)}</strong>
+            {' · '}
+            <strong>{formatDuration(route.durationSeconds)}</strong>
+            {' · '}
+            <span className="route-info-badge">Amazon Location Service</span>
+          </span>
+          <button className="route-clear-btn" onClick={onClearRoute} title="Clear route">✕</button>
+        </div>
+      )}
 
       {mapLoaded && showHeatmap && (
         <HeatmapLayer map={mapRef.current} stations={stations} />

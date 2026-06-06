@@ -85,3 +85,55 @@
 .maplibregl-ctrl-group button span {
   filter: invert(0.8);
 }
+
+/* Route info bar */
+.route-info-bar {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(10, 14, 23, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 10px;
+  color: #f0f6ff;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(56,189,248,0.1);
+}
+
+.route-info-icon {
+  font-size: 1rem;
+}
+
+.route-info-text strong {
+  color: #38bdf8;
+}
+
+.route-info-badge {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.route-clear-btn {
+  margin-left: 4px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.route-clear-btn:hover {
+  color: #f0f6ff;
+}

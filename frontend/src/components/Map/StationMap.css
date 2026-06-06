@@ -1,0 +1,87 @@
+.map-wrapper {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: calc(100vh - 64px);
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.heatmap-toggle {
+  position: absolute;
+  bottom: 40px;
+  left: 24px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.heatmap-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-1);
+}
+
+.heatmap-toggle.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+/* Popup styling */
+.station-popup-container .maplibregl-popup-content {
+  background: var(--bg-surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.station-popup-container .maplibregl-popup-tip {
+  border-top-color: var(--bg-surface) !important;
+}
+
+.station-popup strong {
+  font-size: 0.8rem;
+  color: var(--text-1);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.popup-meta {
+  font-size: 0.7rem;
+  color: var(--text-3);
+}
+
+/* Override maplibre controls for dark theme */
+.maplibregl-ctrl-group {
+  background: var(--bg-surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+.maplibregl-ctrl-group button {
+  background-color: transparent !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+.maplibregl-ctrl-group button span {
+  filter: invert(0.8);
+}

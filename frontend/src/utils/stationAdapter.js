@@ -100,8 +100,8 @@ export function toApiStation(station) {
     city: station.city || "Lagos",
     address: station.address || "",
     location: {
-      lat: toNumber(station.location?.lat ?? station.lat),
-      lng: toNumber(station.location?.lng ?? station.lng),
+      lat: String(toNumber(station.location?.lat ?? station.lat)),
+      lng: String(toNumber(station.location?.lng ?? station.lng)),
     },
     connectors,
     status: station.status === "inactive" ? "inactive" : "active",

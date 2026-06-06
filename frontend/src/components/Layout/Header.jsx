@@ -1,3 +1,4 @@
+import React from 'react';
 import './Header.css';
 
 export default function Header({ user, role, view, onViewChange, onLogin, onLogout, onCityChange, selectedCity }) {

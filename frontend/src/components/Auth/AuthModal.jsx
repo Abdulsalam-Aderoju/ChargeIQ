@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './AuthModal.css';
 
 export default function AuthModal({ onLogin, onClose }) {

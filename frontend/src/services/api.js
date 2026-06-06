@@ -1,6 +1,14 @@
 import stationData from '../data/stations';
+import { toApiStation } from '../utils/stationAdapter';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || null;
+
+const UI_TO_API_STATUS = {
+  AVAILABLE: 'active',
+  IN_USE: 'occupied',
+  OFFLINE: 'offline',
+  MAINTENANCE: 'offline',
+};
 const USE_MOCK = !API_URL;
 
 let localStations = stationData.map((station) => ({
@@ -67,7 +75,7 @@ export async function updateStationStatus(id, status, connectorId = null) {
 
   return fetchApi(`/stations/${id}/status`, {
     method: 'PUT',
-    body: JSON.stringify({ status, connectorId }),
+    body: JSON.stringify({ status: UI_TO_API_STATUS[status] || status }),
   });
 }
 
@@ -86,7 +94,9 @@ export async function createStation(data) {
     return newStation;
   }
 
-  return fetchApi('/stations', { method: 'POST', body: JSON.stringify(data) });
+  const payload = toApiStation(data);
+  delete payload.stationId;
+  return fetchApi('/stations', { method: 'POST', body: JSON.stringify(payload) });
 }
 
 export async function queryNL(query) {

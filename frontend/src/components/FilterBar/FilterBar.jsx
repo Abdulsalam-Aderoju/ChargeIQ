@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { CONNECTOR_TYPES } from '../../utils/constants';
 import './FilterBar.css';
 

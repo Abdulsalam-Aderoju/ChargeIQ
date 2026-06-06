@@ -1,3 +1,4 @@
+import React from 'react';
 import { STATUS_COLORS, STATUS_LABELS } from '../../utils/constants';
 
 export default function StatusBadge({ status, size = 'md', pulse = false }) {

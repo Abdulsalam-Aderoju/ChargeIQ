@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const CONNECTOR_TYPES = ['CCS2', 'CHAdeMO', 'Type 2'];
 const STATUSES = ['AVAILABLE', 'IN_USE', 'OFFLINE', 'MAINTENANCE'];

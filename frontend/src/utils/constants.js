@@ -19,7 +19,7 @@ export const STATUS_LABELS = {
 };
 
 /** Supported connector types */
-export const CONNECTOR_TYPES = ['CCS2', 'CHAdeMO', 'Type 2'];
+export const CONNECTOR_TYPES = ['CCS', 'CHAdeMO', 'Type 2', 'Type 1'];
 
 /** Power level thresholds (kW) */
 export const POWER_LEVELS = {

@@ -38,7 +38,10 @@ export function useStations() {
   useEffect(() => {
     if (stations.length === 0) return;
     const unsub = subscribeToUpdates(stations, (updated) => {
-      setStations(prev => prev.map(s => s.stationId === updated.stationId ? updated : s));
+      const normalized = normalizeStation(updated);
+      setStations(prev => prev.map(s =>
+        s.stationId === normalized.stationId ? { ...s, ...normalized } : s
+      ));
     });
     return unsub;
   }, [stations.length]);

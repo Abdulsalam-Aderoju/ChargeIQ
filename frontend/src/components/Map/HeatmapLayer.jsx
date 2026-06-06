@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 const HEATMAP_SOURCE = 'heatmap-data';
 const HEATMAP_LAYER = 'heatmap-layer';

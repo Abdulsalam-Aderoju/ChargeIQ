@@ -1,3 +1,20 @@
+const CONNECTOR_TYPE_NORMALIZE = {
+  'CCS': 'CCS',
+  'CCS2': 'CCS',
+  'Type2': 'Type 2',
+  'Type 2': 'Type 2',
+  'Type1': 'Type 1',
+  'Type 1': 'Type 1',
+  'CHAdeMO': 'CHAdeMO',
+};
+
+const CONNECTOR_TYPE_TO_API = {
+  'CCS': 'CCS',
+  'Type 2': 'Type2',
+  'Type 1': 'Type1',
+  'CHAdeMO': 'CHAdeMO',
+};
+
 const CONNECTOR_STATUS_TO_UI = {
   available: "AVAILABLE",
   occupied: "IN_USE",
@@ -31,7 +48,7 @@ export function normalizeStation(station) {
   const connectors = (station.connectors || []).map((connector, index) => ({
     id: connector.id || connector.connectorId || `c${index + 1}`,
     connectorId: connector.connectorId || connector.id || String(index + 1),
-    type: connector.type,
+    type: CONNECTOR_TYPE_NORMALIZE[connector.type] || connector.type,
     power: toNumber(connector.power ?? connector.powerKw),
     powerKw: String(connector.powerKw ?? connector.power ?? 0),
     status: CONNECTOR_STATUS_TO_UI[connector.status] || connector.status || "OFFLINE",
@@ -68,7 +85,7 @@ export function normalizeStations(stations) {
 export function toApiStation(station) {
   const connectors = (station.connectors || []).map((connector, index) => ({
     connectorId: connector.connectorId || connector.id || String(index + 1),
-    type: connector.type,
+    type: CONNECTOR_TYPE_TO_API[connector.type] || connector.type,
     powerKw: String(connector.powerKw ?? connector.power ?? 0),
     status: UI_STATUS_TO_CONNECTOR[connector.status] || connector.status || "offline",
   }));

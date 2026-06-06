@@ -32,7 +32,17 @@ def add_lambda_permission(function_name, api_id):
         pass
 
 if __name__ == "__main__":
-    print("\n🚀 ChargeIQ NG — Deploying API Gateway\n")
+    print("\n[INFO] ChargeIQ NG - Deploying API Gateway\n")
+
+    # Clean up existing API Gateway if it exists in env to ensure clean deploy
+    existing_api_id = os.getenv("API_GATEWAY_ID")
+    if existing_api_id:
+        try:
+            print(f"[WARNING] API Gateway ID {existing_api_id} found in env. Deleting old API...")
+            apigateway.delete_api(ApiId=existing_api_id)
+            print("[SUCCESS] Deleted old API.")
+        except Exception:
+            pass
 
     # Create HTTP API
     api = apigateway.create_api(
@@ -46,7 +56,7 @@ if __name__ == "__main__":
         Tags=TAGS
     )
     api_id = api["ApiId"]
-    print(f"✅  Created API: chargeiq-api")
+    print(f"[SUCCESS] Created API: chargeiq-api")
     print(f"    API ID: {api_id}\n")
 
     # Define routes and their Lambda functions
@@ -58,6 +68,7 @@ if __name__ == "__main__":
         {"method": "GET",  "path": "/stations/{stationId}/availability", "function": "chargeiq-get-availability"},
         {"method": "POST", "path": "/availability",                "function": "chargeiq-log-availability"},
         {"method": "POST", "path": "/query/nl",                    "function": "chargeiq-nl-query"},
+        {"method": "POST", "path": "/notifications/subscribe",     "function": "chargeiq-subscribe-driver"},
     ]
 
     for route in routes:
@@ -83,7 +94,7 @@ if __name__ == "__main__":
         # Grant API Gateway permission to invoke Lambda
         add_lambda_permission(route["function"], api_id)
 
-        print(f"✅  {route['method']} {route['path']} → {route['function']}")
+        print(f"[SUCCESS] {route['method']} {route['path']} -> {route['function']}")
 
     # Create and deploy stage
     apigateway.create_stage(
@@ -96,12 +107,18 @@ if __name__ == "__main__":
     api_url = f"https://{api_id}.execute-api.{region}.amazonaws.com/prod"
 
     # Save to .env
-    with open(".env", "a") as f:
-        f.write(f"\n# API Gateway\n")
+    with open(".env", "r") as f:
+        env_lines = f.readlines()
+
+    # Remove existing API lines
+    env_lines = [l for l in env_lines if not l.startswith("API_BASE_URL=") and not l.startswith("API_GATEWAY_ID=")]
+
+    with open(".env", "w") as f:
+        f.writelines(env_lines)
         f.write(f"API_BASE_URL={api_url}\n")
         f.write(f"API_GATEWAY_ID={api_id}\n")
 
-    print(f"\n🎉  API Gateway deployed!")
+    print(f"\n[SUCCESS] API Gateway deployed!")
     print(f"    Base URL: {api_url}\n")
-    print(f"📋  Send Rasheed this URL: {api_url}\n")
+    print(f"[INFO] Send Rasheed this URL: {api_url}\n")
     print(f"    Test it: {api_url}/stations\n")

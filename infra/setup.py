@@ -20,6 +20,7 @@ LAMBDA_TRUST = json.dumps({
     }]
 })
 
+# IAM Policy allowing Lambda functions to access other resources
 LAMBDA_POLICY = json.dumps({
     "Version": "2012-10-17",
     "Statement": [
@@ -99,10 +100,10 @@ def create_role(role_name, trust_policy, inline_policy_name, inline_policy, mana
             Tags=TAGS
         )
         arn = r["Role"]["Arn"]
-        print(f"✅  Created role: {role_name}")
+        print(f"[SUCCESS] Created role: {role_name}")
     except iam.exceptions.EntityAlreadyExistsException:
         arn = iam.get_role(RoleName=role_name)["Role"]["Arn"]
-        print(f"⚡  Already exists: {role_name}")
+        print(f"[INFO] Already exists: {role_name}")
 
     iam.put_role_policy(
         RoleName=role_name,
@@ -131,13 +132,19 @@ def create_s3_buckets():
                 Bucket=bucket,
                 Tagging={"TagSet": TAGS}
             )
-            print(f"✅  Created S3 bucket: {bucket}")
+            print(f"[SUCCESS] Created S3 bucket: {bucket}")
         except s3.exceptions.BucketAlreadyOwnedByYou:
-            print(f"⚡  Bucket already exists: {bucket}")
+            print(f"[INFO] Bucket already exists: {bucket}")
+        except Exception as e:
+            # Catch bucket already owned/created by you variations
+            if "BucketAlreadyExists" in str(e) or "BucketAlreadyOwnedByYou" in str(e):
+                print(f"[INFO] Bucket already exists: {bucket}")
+            else:
+                raise e
     return buckets
 
 if __name__ == "__main__":
-    print("\n🚀 ChargeIQ NG — Infrastructure Setup\n")
+    print("\n[INFO] ChargeIQ NG - Infrastructure Setup\n")
 
     lambda_role_arn = create_role(
         role_name="chargeiq-lambda-role",
@@ -175,5 +182,5 @@ if __name__ == "__main__":
         f.write(f"TAG_APN_ID=pc:8l8gcn23lmlgammd8572tk6va\n")
         f.write(f"TAG_EVENT=oneWithAI\n")
 
-    print("✅  All ARNs and config saved to .env\n")
-    print("🎉  Infrastructure setup complete!\n")
+    print("[SUCCESS] All ARNs and config saved to .env\n")
+    print("[SUCCESS] Infrastructure setup complete!\n")
